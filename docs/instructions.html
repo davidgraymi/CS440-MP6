@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>instructions</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="pandoc.css" />
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+</head>
+<body>
+<h1
+id="cs440-online-fall-2026-mp-6-hmm-tagging-and-particle-filter-localization">CS440
+Online Fall 2026, MP 6: HMM Tagging and Particle-Filter
+Localization</h1>
+<h2 id="due-sunday-november-15-2026-1159-pm-cst">Due: Sunday, November
+15, 2026, 11:59 PM CST</h2>
+<h2 id="i.-overview">I. Overview</h2>
+<p>In this MP you will implement:</p>
+<ol type="1">
+<li>Baseline and HMM Viterbi parts-of-speech taggers</li>
+<li>A particle filter for continuous robot localization using lidar
+observations</li>
+</ol>
+<h2 id="ii.-getting-started">II. Getting Started</h2>
+<p>Look inside the <code>template/</code> directory for the starter
+code. You will find:</p>
+<p>Dependencies (no new ones since previous MPs) to be installed:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-r</span> requirements.txt</span></code></pre></div>
+<p>Files relevant to Part III:</p>
+<ul>
+<li><code>baseline.py</code> - you will edit and submit this</li>
+<li><code>viterbi.py</code> - you will edit and submit this, this is
+your main entry point for running part III code</li>
+<li><code>utils.py</code> - helper code for loading and evaluating the
+tagging datasets</li>
+<li><code>data/</code> - training and development datasets for POS
+tagging</li>
+</ul>
+<p>Files relevant to Part IV:</p>
+<ul>
+<li><code>particle_filter.py</code> - you will edit and submit this,
+this is your main entry point for running part IV code</li>
+<li><code>localization.py</code> - provided simulator and plotting
+helpers for localization</li>
+<li><code>cspace.py</code>, <code>robot.py</code> - provided geometry,
+motion, and lidar helpers</li>
+<li><code>data/</code> - localization scenario JSONs</li>
+</ul>
+<p>Please submit:</p>
+<ul>
+<li><code>baseline.py</code></li>
+<li><code>viterbi.py</code></li>
+<li><code>particle_filter.py</code></li>
+</ul>
+<h2 id="iii.-hmm-pos-tagging-50-points">III. HMM POS Tagging (50
+points)</h2>
+<p>In this part you will implement part-of-speech tagging using a Hidden
+Markov Model (HMM), and comparing to a baseline. Your code should use
+the training data to estimate the HMM probabilities it needs, namely the
+transition and observation models, and then use those probabilities to
+infer tags for the test sentences.</p>
+<p>Run this part with:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> viterbi.py <span class="at">--train</span> data/brown-training.txt <span class="at">--test</span> data/brown-dev.txt <span class="at">--algorithm</span> baseline</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> viterbi.py <span class="at">--train</span> data/brown-training.txt <span class="at">--test</span> data/brown-dev.txt <span class="at">--algorithm</span> viterbi</span></code></pre></div>
+<p>The program reports:</p>
+<ul>
+<li>overall accuracy</li>
+<li>accuracy on words that appear with multiple tags in the training
+set</li>
+<li>accuracy on unseen words</li>
+</ul>
+<p>Many words in the corpus have only one possible tag, so overall
+accuracy is easier to inflate than you might expect and is not
+necessarily so informative on its own. As you will see, multi-tag
+accuracy is especially useful for measuring the benefit of context, and
+unseen-word accuracy helps assess smoothing.</p>
+<h3 id="dataset-notes">Dataset Notes</h3>
+<p>The data consists of sentences from the Brown corpus where each word
+in the sentence is tagged with a part-of-speech tag. This version uses
+16 part-of-speech tags, plus the two boundary tags added by the loader.
+Do NOT hard-code anything with respect to the start and end tags and
+just treating them like any other tag - that being said, they can be
+very helpful for <em>debugging</em> your code!</p>
+<p>The provided loader:</p>
+<ul>
+<li>lowercases all words</li>
+<li>adds <code>START</code> and <code>END</code> tokens to each
+sentence</li>
+<li>ignores <code>START</code> and <code>END</code> when computing
+accuracy</li>
+</ul>
+<p>Do not hardcode:</p>
+<ul>
+<li>the number of tags</li>
+<li>the names of tags</li>
+<li>any corpus-specific probabilities</li>
+</ul>
+<p>The autograder will also test your code on hidden corpora whose
+tagsets differ from Brown.</p>
+<h3 id="baseline-tagger">Baseline Tagger</h3>
+<p>The baseline tagger you need to implement in <code>baseline.py</code>
+ignores context. For each word <code>w</code>, it counts how many times
+<code>w</code> appears with each tag in the training set, then during
+prediction selects the most frequent tag for that word. For unseen
+words, it should predict the most frequent tag overall in the training
+set.</p>
+<p>A correct baseline should reach roughly <code>94%</code> overall
+accuracy on the development set, but only around <code>90%</code> on
+words with multiple tags and <code>70%</code> on unseen words.</p>
+<h3 id="viterbi-hmm-tagger">Viterbi HMM Tagger</h3>
+<p>The Viterbi tagger should implement the standard HMM Viterbi
+algorithm from lecture for finding the most likely sequence of tags. The
+model makes two assumptions:</p>
+<ul>
+<li>the probability of the current tag depends only on the previous
+tag</li>
+<li>the probability of the current word depends only on the current
+tag</li>
+</ul>
+<p>So the model uses:</p>
+<ul>
+<li>transition probabilities: <span class="math inline">\(P(t_i \mid
+t_{i-1})\)</span></li>
+<li>emission probabilities: <span class="math inline">\(P(w_i \mid
+t_i)\)</span></li>
+<li>initial probabilities for the first tag in the sentence: <span
+class="math inline">\(P(t_0)\)</span></li>
+</ul>
+<p>The provided <code>viterbi(...)</code> function already loops over
+the sentence and repeatedly calls <code>stepforward(...)</code>. Your
+job is to:</p>
+<ol type="1">
+<li>Compute smoothed initial, transition, and emission probabilities in
+<code>train(...)</code></li>
+<li>Implement one update in <code>stepforward(...)</code></li>
+</ol>
+<h3 id="train...">1. <code>train(...)</code></h3>
+<p>It is helpful to think of <code>train(...)</code> in two stages:</p>
+<ol type="1">
+<li>Compute counts:
+<ul>
+<li>Count how often each tag starts a sentence, how often each tag
+appears in general, and how often each tag comes after another tag</li>
+<li>Count how often each word appears with each tag, i.e., emissions
+<code>count(tag, word)</code></li>
+<li>Count how often transitions occur, i.e.,
+<code>count(prev_tag, next_tag)</code></li>
+<li>Count hapax words and their tags for emission smoothing (see
+below)</li>
+</ul></li>
+<li>Convert counts into (log of) smoothed probabilities
+<ul>
+<li>Store <code>math.log(p)</code> in all three dictionaries:
+<code>init_prob</code>, <code>emit_prob</code>, and
+<code>trans_prob</code> (including <code>UNSEEN</code>). Precomputing
+these natural logs avoids repeated logarithms in the stepforward
+step</li>
+</ul></li>
+</ol>
+<p><strong>For initial probabilities</strong>, use Laplace smoothing:
+<code>(count_first(tag) + transition_epsilon) / (len(sentences) + transition_epsilon * K)</code>,
+where <code>K</code> is the number of distinct training tags. Include
+every observed tag, even if it never starts a sentence.</p>
+<p><strong>For transitions</strong>, use Laplace smoothing with the same
+provided <code>transition_epsilon = 1e-5</code> for every tag pair. Let
+<span class="math inline">\(K\)</span> be the number of distinct tags in
+training and <code>outgoing_count(previous)</code> count occurrences of
+the previous tag that are followed by another tag in the same sentence.
+Then</p>
+<p><span class="math display">\[P(\text{current} \mid \text{previous}) =
+\frac{\text{count}(\text{previous}, \text{current}) +
+\text{transition\_epsilon}}{\text{outgoing\_count}(\text{previous}) +
+\text{transition\_epsilon} \cdot K}.\]</span></p>
+<p>Include <em>every pair of observed tags</em>, including pairs never
+seen together. For example a tag with no outgoing transitions (like
+<code>END</code>) would get a uniform row, with probability <span
+class="math inline">\(1/K\)</span> for every next tag. Notice that we
+don’t need to worry about “unseen” tags the way we do for words - tags
+are our labels and naturally we have to assume our training data covers
+the full tag list.</p>
+<p><strong>For emissions</strong>, smooth each tag separately. If
+<code>T</code> is a tag, let:</p>
+<ul>
+<li><code>V_T</code> = number of distinct words seen with tag
+<code>T</code></li>
+<li><code>n_T</code> = total number of training tokens with tag
+<code>T</code></li>
+<li><code>alpha_T</code> = smoothing constant for tag <code>T</code>
+(see Hapax Smoothing below for computing the per tag
+<code>alpha_T</code>)</li>
+</ul>
+<p>Then for any observed word <code>w</code> with tag <code>T</code>,
+the smoothed emission probability is:</p>
+<p><span class="math display">\[P(w \mid T) = \frac{\text{count}(T,w) +
+\alpha_T}{n_T + \alpha_T (V_T + 1)}\]</span></p>
+<p>and for unseen words with tag <code>T</code>, the smoothed emission
+probability is:</p>
+<p><span class="math display">\[P(\text{UNSEEN} \mid T) =
+\frac{\alpha_T}{n_T + \alpha_T (V_T + 1)}\]</span></p>
+<p><em>You should include an explicit <code>UNSEEN</code> emission entry
+for every tag.</em></p>
+<h4 id="hapax-smoothing-for-emissions">Hapax Smoothing for
+Emissions</h4>
+<p>A <strong>hapax</strong> word is a word that appears <em>exactly
+once</em> in the training set. These words are important because they
+tend to have a tag distribution that is much closer to truly unseen test
+words than the full vocabulary distribution does. In other words, we can
+use these hapax words as a proxy for words we haven’t seen.</p>
+<p>Let:</p>
+<ul>
+<li><code>hapax(T)</code> = number of hapax words whose tag is
+<code>T</code></li>
+<li><code>H</code> = total number of hapax words across all tags</li>
+<li><code>alpha</code> = the provided base smoothing constant,
+<code>1e-5</code></li>
+</ul>
+<p>Use the following rule with the provided
+<code>emit_epsilon = 1e-5</code> as <span
+class="math inline">\(\alpha\)</span>:</p>
+<p><span class="math display">\[\alpha_T = \alpha \cdot \frac{\max(1,
+\text{hapax}(T))}{\max(1, H)}.\]</span></p>
+<p>The <code>max</code> terms ensure that every tag’s unseen probability
+is positive even if a tag has no hapax words.</p>
+<h4 id="why-hapax-smoothing">Why hapax smoothing…?</h4>
+<p>The result of this redistribution of smoothing is that tags with more
+hapax words get a larger <code>UNSEEN</code> probability mass. It looks
+like a tiny modification, but it has a large effect because unseen-word
+decisions are exactly where the HMM is weakest. Even though the numeric
+change in <code>alpha_T</code> is small, it can change the
+<strong>relative ranking</strong> of tags for unseen words and therefore
+the predicted tag sequence.</p>
+<p>Singleton words act as a proxy for unseen words:</p>
+<ul>
+<li>if singleton words are often nouns, then unknown words should be
+more noun-like</li>
+<li>if singleton words are rarely conjunctions, then unknown words
+should be less conjunction-like</li>
+</ul>
+<h3 id="stepforward...">2. <code>stepforward(...)</code></h3>
+<p>The provided code initializes the first column of the trellis using
+the initial log tag probabilities and then iteratively calls your
+<code>stepforward(...)</code> method.</p>
+<p>Let <span class="math inline">\(b_i(t)\)</span> be the score of the
+best partial tag sequence ending in tag <span
+class="math inline">\(t\)</span> after processing word <span
+class="math inline">\(i\)</span>. Notice we use the word “score” because
+these are not real probabilities (we are not doing normalization).
+Moreover we will use sums of log probabilities rather than products of
+probabilities to avoid numerical underflow. Compute these scores as
+follows:</p>
+<p><span class="math display">\[b_i(t&#39;) = \log P(w_i \mid t&#39;) +
+\max_{t} \left[b_{i-1}(t) + \log P(t&#39; \mid t)\right]\]</span></p>
+<p>Note:</p>
+<ul>
+<li>At <code>i = 0</code> do not apply a transition, just add the
+emission log probability to <code>prev_prob</code></li>
+<li>Use the stored emission and transition log probabilities directly;
+do not take logs again</li>
+<li>For a word absent from a tag’s emission dictionary, use that tag’s
+explicit <code>UNSEEN</code> entry</li>
+<li>Return scores and tag-sequence lists for every tag. At column zero,
+each tag-sequence path is <code>[tag]</code>. At later columns, extend
+the best predecessor path with the current tag</li>
+</ul>
+<h2 id="iv.-particle-filter-localization-50-points">IV. Particle-Filter
+Localization (50 points)</h2>
+<table style="width: 100%; table-layout: fixed; margin: 0 auto 1.5rem auto;">
+<tr>
+<td style="width: 33%; vertical-align: top; text-align: center;">
+<img src="localization_visible_2_trajectory.png" style="width: 100%; height: auto;">
+<div>
+<strong>Visible two-beam replay scenario. The orange curve is the
+prerecorded true trajectory, and the short colored segments show the
+stored beam observations along that path. Notice that the observations
+are noisy!</strong>
+</div>
+</td>
+<td style="width: 33%; vertical-align: top; text-align: center;">
+<img src="localization_visible_1_history_1.png" style="width: 100%; height: auto;">
+<div>
+<strong>Visible 1: one forward beam. Notice the filter is estimating the
+current state at each step; it is not estimating an entire trajectory
+the way we did in Viterbi.</strong>
+</div>
+</td>
+<td style="width: 33%; vertical-align: top; text-align: center;">
+<img src="localization_visible_2_history_1.png" style="width: 100%; height: auto;">
+<div>
+<strong>Visible 2: two diagonal beams. Notice how we localize faster
+when we have two observations!</strong>
+</div>
+</td>
+</tr>
+</table>
+<p>In this part you will localize a rectangular Unicycle robot in a
+continuous 3D configuration space, <span class="math inline">\(x_t =
+(p_x, p_y, \theta)\)</span>, using a particle filter. The robot has a
+known geometry and executes known controls, but both the controls and
+the sensor observations are noisy. The robot is equipped with one or two
+forward-facing range sensors (lidar beams) that return the distance to
+the nearest obstacle in their direction. The provided scenarios are
+generated by replaying a prerecorded true trajectory of the robot
+through an environment with polygonal obstacles, and recording noisy
+controls and noisy beam observations along that trajectory.</p>
+<p>Each localization scenario
+(<code>data/localization_visible_[1-4].json</code>) contains:</p>
+<ul>
+<li>a workspace boundary and polygonal obstacles</li>
+<li>a start state and a sequence of controls</li>
+<li>a prerecorded true trajectory generated offline with noisy
+controls</li>
+<li>a prerecorded sequence of noisy range observations</li>
+<li>a geometric sensor model that you can query for arbitrary particle
+states</li>
+</ul>
+<p>Your job is to complete the particle filter based localization code
+by filling in the missing functions in <code>particle_filter.py</code> -
+<code>update_belief</code>, <code>resample</code>, and
+<code>act</code>.</p>
+<p>Run this part with:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> particle_filter.py <span class="at">--env</span> data/localization_visible_1.json</span></code></pre></div>
+<p>Replace <code>localization_visible_1.json</code> with any of the
+other available scenarios to experiment. You can also pass in
+<code>--num_particles</code> to change the number of particles,
+<code>--seed</code> to set the random seed, and <code>--show</code> to
+visualize the results or <code>--save</code> to save the visualization.
+If a run produces multiple figure pages, they will be saved as
+<code>..._1.png</code>, <code>..._2.png</code>, and so on.</p>
+<h3 id="public-and-hidden-scenarios">Public and Hidden Scenarios</h3>
+<p>The provided four files form two environment pairs:</p>
+<ul>
+<li><code>visible_1</code> and <code>visible_2</code> share the same
+environment and replayed true trajectory, but <code>visible_1</code> has
+one beam and <code>visible_2</code> has two beams</li>
+<li><code>visible_3</code> and <code>visible_4</code> are a second
+environment pair with the same one-beam / two-beam structure</li>
+</ul>
+<p>The gradescope tests use unseen scenarios but follow the same general
+format.</p>
+<p>For each hidden localization scenario, the autograder scores
+according to the final fraction of particle weight within some distance
+of the true <span class="math inline">\((p_x, p_y)\)</span>
+position.</p>
+<h3 id="code-structure">Code Structure</h3>
+<p>The localization code is organized around two provided abstractions
+in <code>localization.py</code>:</p>
+<ol type="1">
+<li><p><code>LocalizationProblem</code></p>
+<p>This stores the scenario definition loaded from a JSON file,
+including the robot, the start state, the controls, the beam directions,
+the noise parameters that were used to generate the replay data, and
+optionally prerecorded <code>true_states</code> and
+<code>observations</code>.</p></li>
+<li><p><code>LocalizationSimulator</code></p>
+<p>This is the simulator that provides the online interface used by your
+filter. It provides the following operations:</p>
+<ul>
+<li><code>observe()</code> - returns the current observation from the
+replayed scenario</li>
+<li><code>observe_config(config, noisy=False)</code> - returns the
+expected beam distances for any candidate particle configuration</li>
+<li><code>propagate_config(config, control, control_noise=None)</code> -
+propagates a particle through the noisy motion model</li>
+<li><code>step(control)</code> - advances the replayed true state by one
+time step</li>
+</ul></li>
+</ol>
+<p>For the provided scenarios, the simulator replays stored
+<code>true_states</code> and <code>observations</code> if they are
+present in the JSON file. If you create your own custom scenario file
+without replayed data, the same simulator can still generate motion and
+observations online from the model.</p>
+<p>The particle filter code is organized around the
+<code>run_particle_filter(...)</code> function in
+<code>particle_filter.py</code>, which runs the overall particle filter
+loop. The helper functions <code>initialize_valid_particles(...)</code>,
+<code>estimate_state(...)</code>, and
+<code>run_particle_filter(...)</code> are already provided, your job is
+to fill in the missing pieces of that loop by implementing only the
+three missing functions:</p>
+<ul>
+<li><code>update_belief(...)</code></li>
+<li><code>resample(...)</code></li>
+<li><code>act(...)</code></li>
+</ul>
+<p>Particles, weights, and beam observations are real numeric NumPy
+arrays with shapes <code>(N, 3)</code>, <code>(N,)</code>, and
+<code>(B,)</code>, respectively. Return particle and weight arrays in
+this same representation. The grader calls the three required functions
+directly, using their default noise values for localization.</p>
+<h3 id="observation-update-update_belief...">Observation Update:
+<code>update_belief(...)</code></h3>
+<p>This function returns nonnegative posterior weights summing to
+one.</p>
+<p>Suppose the current particle set is <span
+class="math inline">\(\left\{x_t^{(1)}, x_t^{(2)}, \ldots,
+x_t^{(N)}\right\}\)</span> with prior weights <span
+class="math inline">\(\left\{w_t^{(1)}, w_t^{(2)}, \ldots,
+w_t^{(N)}\right\}\)</span>. Let the sensor observation at this time step
+be the beam-distance vector <span class="math inline">\(z_t = (z_{t,1},
+z_{t,2}, \ldots, z_{t,B})\)</span>.</p>
+<p>For each particle, use the simulator to compute the expected
+measurement <span
+class="math inline">\(h\!\left(x_t^{(i)}\right)\)</span>.</p>
+<p>The provided observation model assumes independent Gaussian noise on
+each beam, <span class="math inline">\(\mathcal{N}(z; \mu, \sigma^2) =
+\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(z-\mu)^2}{2\sigma^2}\right)\)</span>,
+and therefore, for beam <span class="math inline">\(b\)</span>,</p>
+<p><span class="math display">\[ p(z_{t,b} \mid x_t^{(i)}) =
+\frac{1}{\sqrt{2\pi}\sigma}
+\exp\left(
+    -\frac{\left(z_{t,b} -
+h_b\!\left(x_t^{(i)}\right)\right)^2}{2\sigma^2}
+\right)\]</span></p>
+<p>and assuming the beam noises are independent, the full observation
+likelihood is the product across beams, <span
+class="math inline">\(p(z_t \mid x_t^{(i)}) = \prod_{b=1}^{B} p(z_{t,b}
+\mid x_t^{(i)})\)</span>. Note that <span
+class="math inline">\(\sigma\)</span> is the <strong>particle
+observation-noise standard deviation that you choose for your
+filter</strong> which can be different than the noise used to generate
+the true data. To reiterate, the scenarios are generated using one
+sensor noise, but your particle filter is expected to use a
+<strong>tuned particle observation noise</strong> that works well for
+filtering. In other words, you should experiment on the visible
+scenarios, choose a good value, and then set the <strong>default value
+in the function signature</strong> to your tuned value so that your full
+<code>run_particle_filter(...)</code> uses it.</p>
+<p>Given the above observation model the standard Bayes-filter update
+is:</p>
+<p><span class="math display">\[\tilde{w}_t^{(i)} = w_t^{(i)} \, p(z_t
+\mid x_t^{(i)})\]</span></p>
+<p>and then normalize the weights:</p>
+<p><span class="math display">\[w_t^{(i)} =
+\frac{\tilde{w}_t^{(i)}}{\sum_j \tilde{w}_t^{(j)}}.\]</span></p>
+<p>The equations above, while correct, will lead to numerical
+underflow/overflow. To avoid this, one approach is to compute the sum of
+logs (to avoid underflow from the product) and then exponentiate after
+subtracting the maximum value (this avoids overflow of exponentiating a
+large value while not affecting post normalization values) before
+normalizing:</p>
+<p><span class="math display">\[\ell_i = \log w_t^{(i)} +
+\sum_{b=1}^{B}\left[-\log(\sqrt{2\pi}\sigma) - \frac{\left(z_{t,b} -
+h_b\!\left(x_t^{(i)}\right)\right)^2}{2\sigma^2}\right].\]</span></p>
+<p>For zero prior weights, set <span class="math inline">\(\ell_i =
+-\infty\)</span> so their posterior weights remain zero.</p>
+<p><span class="math display">\[m = \max_i \ell_i, \qquad u_i =
+\exp(\ell_i - m).\]</span></p>
+<p><span class="math display">\[w_t^{(i)} = \frac{u_i}{\sum_j
+u_j}.\]</span></p>
+<h3 id="resampling-resample...">Resampling:
+<code>resample(...)</code></h3>
+<p>Given particles <span class="math inline">\(\left\{x^{(1)}, \ldots,
+x^{(N)}\right\}\)</span> with normalized weights <span
+class="math inline">\(\left\{w^{(1)}, \ldots, w^{(N)}\right\}\)</span>,
+resampling draws new ancestor indices</p>
+<p><span class="math display">\[a_j \sim
+\text{Categorical}\!\left(w^{(1)}, \ldots, w^{(N)}\right)\]</span></p>
+<p>and thus creates the new particle set <span
+class="math inline">\(x_{\text{new}}^{(j)} = x^{(a_j)}\)</span>. In
+other words we draw <code>N</code> times with replacement from our
+particle set according to the weights. After resampling, all particles
+should receive uniform weights:</p>
+<p><span class="math display">\[w_{\text{new}}^{(j)} =
+\frac{1}{N}.\]</span></p>
+<p>The point of resampling is to focus the particle set on the
+high-probability regions of the state space by replicating particles
+with high weights and eliminating particles with low weights. We do this
+to address weight degeneracy (where over time our weight distribution
+becomes very skewed), but repeated resampling can reduce particle
+diversity (sample impoverishment). Motion noise (next section) will help
+us maintain diversity…</p>
+<h3 id="motion-update-act...">Motion Update: <code>act(...)</code></h3>
+<p>Let the control at the current step be <span
+class="math inline">\(u_t\)</span>. For each particle <span
+class="math inline">\(x_t^{(i)}\)</span>, your motion update samples one
+noisy successor <span class="math inline">\(x_{t+1} \sim p(x_{t+1} \mid
+x_t^{(i)}, u_t)\)</span> by querying the simulator’s
+<code>propagate_config(...)</code> function. If the simulator returns
+<code>None</code> for a particle, that means the particle’s motion would
+have resulted in a collision, so you should keep the old particle
+instead of propagating it (let resampling remove this particle in a
+future iteration if relevant).</p>
+<p>The data was generated with a specific noisy motion model, i.e.,
+using <code>simulator.problem.control_noise</code>. Like with
+observation noise, it is tempting to directly use this noise when
+propagating particles forward, but in practice particle filters often
+work better with a relatively diffuse particle action model to avoid
+collapse. Therefore, similar to the observation noise, you should
+experiment with a <strong>tuned particle action noise</strong> that
+works well for filtering. In other words, you should not necessarily use
+the same noise that was used to generate the data, but rather choose a
+noise level that works well across the visible scenarios.</p>
+<h2 id="submission-instructions">Submission Instructions</h2>
+<p>Submit <code>baseline.py</code>, <code>viterbi.py</code>, and
+<code>particle_filter.py</code> to Gradescope. Do not forget to access
+Gradescope from the Launch App button in Coursera and to comment out
+print statements to avoid timeouts.</p>
+<h2 id="policies">Policies</h2>
+<p>You are expected to be familiar with the general course policies,
+including academic integrity. This is an individual assignment and the
+code you submit must be your own work.</p>
+</body>
+</html>
