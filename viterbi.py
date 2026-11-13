@@ -1,5 +1,4 @@
 # NOTE: math.log(float) is much faster than np.log(float)
-import math
 import argparse
 
 # smoothing constants for initial/transition probabilities and emissions, respectively
@@ -36,7 +35,9 @@ def viterbi(train_data, test_data):
             )
 
         best_tag = max(log_prob, key=log_prob.get)
-        predicts.append([(word, predict_tag_seq[best_tag][i]) for i, word in enumerate(sentence)])
+        predicts.append(
+            [(word, predict_tag_seq[best_tag][i]) for i, word in enumerate(sentence)]
+        )
 
     return predicts
 
@@ -57,6 +58,72 @@ def train(sentences):
     # - use epsilon = emit_epsilon * max(1, hapax_for_tag) / max(1, total_hapax)
     # - do laplace smoothing using this epsilon and include an explicit UNSEEN emission entry for every tag
     # Store natural logs of all three smoothed probabilities to avoid repeated logs during stepforward
+
+    word_tag_counts = {}
+    init_counts = {}
+    emit_counts = {}
+    trans_counts = {}
+
+    for sentence in sentences:
+        prev_tag = None
+        for i in range(len(sentence)):
+            word, tag = sentence[i]
+
+            # count hapax
+            if word not in word_tag_counts:
+                word_tag_counts[word] = {}
+            if tag not in word_tag_counts[word]:
+                word_tag_counts[word][tag] = 1
+            else:
+                word_tag_counts[word][tag] += 1
+
+            # count inits
+            if i == 0:
+                if tag not in init_counts:
+                    init_counts[tag] = 1
+                else:
+                    init_counts[tag] += 1
+
+            # count emissions
+            emit = (tag, word)
+            if tag not in emit_counts:
+                emit_counts[tag] = {}
+            if word not in emit_counts[tag]:
+                emit_counts[tag][word] = 1
+            else:
+                emit_counts[tag][word] += 1
+
+            # count transitions
+            transition = (prev_tag, tag)
+            if transition not in trans_counts:
+                trans_counts[transition] = 1
+            else:
+                trans_counts[transition] += 1
+
+            prev_tag = tag
+
+    hapax_counts = {}
+    for word, tag_counts in word_tag_counts:
+        tag, count = next(iter(tag_counts.items()), (None, None))
+        if tag != None and count != None and count == 1:
+            hapax_counts[word] = tag
+
+    number_of_tags = len(emit_counts)
+
+    init_prob = {
+        tag: (count + transition_epsilon)
+        / (len(sentences) + transition_epsilon * number_of_tags)
+        for tag, count in init_counts
+    }
+
+    emit_prob = {}
+
+    trans_prob = {
+        transition: (count + transition_epsilon)
+        / (outgoing_count(prev_tag) + transition_epsilon * number_of_tags)
+        for transition, count in trans_counts
+    }
+
     raise NotImplementedError("TODO: implement train")
 
 
@@ -73,12 +140,20 @@ def stepforward(i, word, prev_prob, prev_predict_tag_seq, emit_prob, trans_prob)
 
 
 if __name__ == "__main__":
-    from baseline import baseline
     import utils
+    from baseline import baseline
 
     parser = argparse.ArgumentParser(description="CS440 MP6 HMM POS Tagging")
-    parser.add_argument("--train", dest="training_file", type=str, required=True, help="Training data file")
-    parser.add_argument("--test", dest="test_file", type=str, required=True, help="Testing data file")
+    parser.add_argument(
+        "--train",
+        dest="training_file",
+        type=str,
+        required=True,
+        help="Training data file",
+    )
+    parser.add_argument(
+        "--test", dest="test_file", type=str, required=True, help="Testing data file"
+    )
     parser.add_argument(
         "--algorithm",
         choices=("baseline", "viterbi"),
@@ -97,11 +172,19 @@ if __name__ == "__main__":
 
     print(f"Running {args.algorithm}...")
     predictions = algorithm(train_set, utils.strip_tags(test_set))
-    accuracy, correct_wordtagcounter, wrong_wordtagcounter = utils.evaluate_accuracies(predictions, test_set)
-    multitags_acc, unseen_acc = utils.specialword_accuracies(train_set, predictions, test_set)
+    accuracy, correct_wordtagcounter, wrong_wordtagcounter = utils.evaluate_accuracies(
+        predictions, test_set
+    )
+    multitags_acc, unseen_acc = utils.specialword_accuracies(
+        train_set, predictions, test_set
+    )
 
     print(f"Accuracy: {accuracy * 100:.2f}%")
     print(f"\tMultitags Accuracy: {multitags_acc * 100:.2f}%")
     print(f"\tUnseen words Accuracy: {unseen_acc * 100:.2f}%")
-    print(f"\tTop K Wrong Word-Tag Predictions: {utils.topk_wordtagcounter(wrong_wordtagcounter, k=4)}")
-    print(f"\tTop K Correct Word-Tag Predictions: {utils.topk_wordtagcounter(correct_wordtagcounter, k=4)}")
+    print(
+        f"\tTop K Wrong Word-Tag Predictions: {utils.topk_wordtagcounter(wrong_wordtagcounter, k=4)}"
+    )
+    print(
+        f"\tTop K Correct Word-Tag Predictions: {utils.topk_wordtagcounter(correct_wordtagcounter, k=4)}"
+    )
