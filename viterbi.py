@@ -55,19 +55,13 @@ class Counts:
 
     def incr(self, word, prev_tag):
         self.total += 1
-
-        if word not in self.emissions:
-            self.emissions[word] = 1
-        else:
-            self.emissions[word] += 1
+        self.emissions[word] = self.emissions.get(word, 0) + 1
 
         if prev_tag is None:
             self.inits += 1
 
-        if (prev_tag is not None) and (prev_tag not in self.transitions):
-            self.transitions[prev_tag] = 1
-        else:
-            self.transitions[prev_tag] += 1
+        if prev_tag is not None:
+            self.transitions[prev_tag] = self.transitions.get(prev_tag, 0) + 1
 
     def incr_outgoing(self):
         self.outgoing += 1
@@ -151,8 +145,8 @@ def train(sentences):
     emit_prob = {
         tag: {
             word: math.log(
-                (count.emissions.get(word, 0) + alpha_T)
-                / (count.total + alpha_T * (len(count.emissions) + 1))
+                (count.emissions.get(word, 0) + alpha_T[tag])
+                / (count.total + alpha_T[tag] * (len(count.emissions) + 1))
             )
             for word in list(count.emissions.keys()) + ["UNSEEN"]
         }
@@ -162,8 +156,7 @@ def train(sentences):
     trans_prob = {
         prev_tag: {
             next_tag: math.log(
-                counts[next_tag].transitions.get(prev_tag, 0)
-                + transition_epsilon
+                (counts[next_tag].transitions.get(prev_tag, 0) + transition_epsilon)
                 / (counts[prev_tag].outgoing + transition_epsilon * number_of_tags)
             )
             for next_tag in counts
