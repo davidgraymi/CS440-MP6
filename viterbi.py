@@ -145,7 +145,8 @@ def train(sentences):
         for tag, count in counts.items()
     }
     alpha_T = {
-        tag: emit_epsilon * max(1, hapax_T) / max(1, total_hapax) for tag, hT in hapax_T
+        tag: emit_epsilon * max(1, hT) / max(1, total_hapax)
+        for tag, hT in hapax_T.items()
     }
     emit_prob = {
         tag: {
@@ -153,17 +154,16 @@ def train(sentences):
                 (count.emissions.get(word, 0) + alpha_T)
                 / (count.total + alpha_T * (len(count.emissions) + 1))
             )
+            for word in list(count.emissions.keys()) + ["UNSEEN"]
         }
         for tag, count in counts.items()
-        for word in list(count.emissions.keys()).append("UNSEEN")
     }
 
     trans_prob = {
         prev_tag: {
-            next_tag: (
-                math.log(
-                    counts[next_tag].transitions.get(prev_tag, 0) + transition_epsilon
-                )
+            next_tag: math.log(
+                counts[next_tag].transitions.get(prev_tag, 0)
+                + transition_epsilon
                 / (counts[prev_tag].outgoing + transition_epsilon * number_of_tags)
             )
             for next_tag in counts
