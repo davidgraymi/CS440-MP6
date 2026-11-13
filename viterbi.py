@@ -85,7 +85,7 @@ class Counts:
 
 
 def train(sentences):
-    # TODO(III): estimate the HMM parameters from the tagged training data.
+    # (III): estimate the HMM parameters from the tagged training data.
     # Return three dictionaries:
     # 1. init_prob[tag] = log probability that the first tag in a sentence is tag
     # 2. emit_prob[tag][word] = log probability that tag emits word
