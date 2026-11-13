@@ -1,5 +1,6 @@
 # NOTE: math.log(float) is much faster than np.log(float)
 import argparse
+import math
 
 # smoothing constants for initial/transition probabilities and emissions, respectively
 # you do not need to change these
@@ -42,6 +43,47 @@ def viterbi(train_data, test_data):
     return predicts
 
 
+class Counts:
+    def __init__(self, name: str):
+        self.name = name
+
+        self.inits = 0
+        self.total = 0
+        self.outgoing = 0
+        self.transitions: dict[str, int] = {}
+        self.emissions: dict[str, int] = {}
+
+    def incr(self, word, prev_tag):
+        self.total += 1
+
+        if word not in self.emissions:
+            self.emissions[word] = 1
+        else:
+            self.emissions[word] += 1
+
+        if prev_tag is None:
+            self.inits += 1
+
+        if (prev_tag is not None) and (prev_tag not in self.transitions):
+            self.transitions[prev_tag] = 1
+        else:
+            self.transitions[prev_tag] += 1
+
+    def incr_outgoing(self):
+        self.outgoing += 1
+
+    def hapax(self, words):
+        return sum([1 if w in self.emissions else 0 for w in words])
+
+    def __eq__(self, other):
+        if not isinstance(other, Counts):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+
 def train(sentences):
     # TODO(III): estimate the HMM parameters from the tagged training data.
     # Return three dictionaries:
@@ -59,72 +101,77 @@ def train(sentences):
     # - do laplace smoothing using this epsilon and include an explicit UNSEEN emission entry for every tag
     # Store natural logs of all three smoothed probabilities to avoid repeated logs during stepforward
 
-    word_tag_counts = {}
-    init_counts = {}
-    emit_counts = {}
-    trans_counts = {}
+    counts: dict[str, Counts] = {}
+    words: dict[str, int] = {}
 
-    for sentence in sentences:
+    # word_tag_counts = {}
+    # init_counts = {}
+    # emit_counts = {}
+    # trans_counts = {}
+
+    for i in range(len(sentences)):
+        sentence = sentences[i]
         prev_tag = None
-        for i in range(len(sentence)):
-            word, tag = sentence[i]
+        for j in range(len(sentence)):
+            word, tag = sentence[j]
+            if tag not in counts:
+                counts[tag] = Counts(name=tag)
 
-            # count hapax
-            if word not in word_tag_counts:
-                word_tag_counts[word] = {}
-            if tag not in word_tag_counts[word]:
-                word_tag_counts[word][tag] = 1
+            counts[tag].incr(word, prev_tag)
+
+            if prev_tag is not None:
+                counts[prev_tag].incr_outgoing()
+
+            if word not in words:
+                words[word] = 1
             else:
-                word_tag_counts[word][tag] += 1
-
-            # count inits
-            if i == 0:
-                if tag not in init_counts:
-                    init_counts[tag] = 1
-                else:
-                    init_counts[tag] += 1
-
-            # count emissions
-            emit = (tag, word)
-            if tag not in emit_counts:
-                emit_counts[tag] = {}
-            if word not in emit_counts[tag]:
-                emit_counts[tag][word] = 1
-            else:
-                emit_counts[tag][word] += 1
-
-            # count transitions
-            transition = (prev_tag, tag)
-            if transition not in trans_counts:
-                trans_counts[transition] = 1
-            else:
-                trans_counts[transition] += 1
+                words[word] += 1
 
             prev_tag = tag
 
-    hapax_counts = {}
-    for word, tag_counts in word_tag_counts:
-        tag, count = next(iter(tag_counts.items()), (None, None))
-        if tag != None and count != None and count == 1:
-            hapax_counts[word] = tag
-
-    number_of_tags = len(emit_counts)
-
+    number_of_tags = len(counts)
     init_prob = {
-        tag: (count + transition_epsilon)
-        / (len(sentences) + transition_epsilon * number_of_tags)
-        for tag, count in init_counts
+        tag: math.log(
+            (count.inits + transition_epsilon)
+            / (len(sentences) + transition_epsilon * number_of_tags)
+        )
+        for tag, count in counts.items()
     }
 
-    emit_prob = {}
+    hapax_words = [w for w, c in words.items() if c == 1]
+    total_hapax = len(hapax_words)
+    hapax_T = {
+        tag: sum(1 for w in count.emissions if words[w] == 1)
+        for tag, count in counts.items()
+    }
+    alpha_T = {
+        tag: emit_epsilon * max(1, hapax_T) / max(1, total_hapax) for tag, hT in hapax_T
+    }
+    emit_prob = {
+        tag: {
+            word: math.log(
+                (count.emissions.get(word, 0) + alpha_T)
+                / (count.total + alpha_T * (len(count.emissions) + 1))
+            )
+        }
+        for tag, count in counts.items()
+        for word in list(count.emissions.keys()).append("UNSEEN")
+    }
 
     trans_prob = {
-        transition: (count + transition_epsilon)
-        / (outgoing_count(prev_tag) + transition_epsilon * number_of_tags)
-        for transition, count in trans_counts
+        prev_tag: {
+            next_tag: (
+                math.log(
+                    counts[next_tag].transitions.get(prev_tag, 0) + transition_epsilon
+                )
+                / (counts[prev_tag].outgoing + transition_epsilon * number_of_tags)
+            )
+            for next_tag in counts
+        }
+        for prev_tag in counts
     }
 
-    raise NotImplementedError("TODO: implement train")
+    return init_prob, emit_prob, trans_prob
 
 
 def stepforward(i, word, prev_prob, prev_predict_tag_seq, emit_prob, trans_prob):
