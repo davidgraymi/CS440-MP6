@@ -98,11 +98,6 @@ def train(sentences):
     counts: dict[str, Counts] = {}
     words: dict[str, int] = {}
 
-    # word_tag_counts = {}
-    # init_counts = {}
-    # emit_counts = {}
-    # trans_counts = {}
-
     for i in range(len(sentences)):
         sentence = sentences[i]
         prev_tag = None
@@ -168,7 +163,7 @@ def train(sentences):
 
 
 def stepforward(i, word, prev_prob, prev_predict_tag_seq, emit_prob, trans_prob):
-    # TODO(III): advance the Viterbi trellis by one observed word.
+    # (III): advance the Viterbi trellis by one observed word.
     # Parameters:
     # - i: index of the current word in the sentence
     # - word: the observed word at position i
@@ -176,7 +171,25 @@ def stepforward(i, word, prev_prob, prev_predict_tag_seq, emit_prob, trans_prob)
     # - prev_predict_tag_seq[tag]: best tag sequence ending in each previous tag
     # - emit_prob, trans_prob: log probabilities returned by train; use them directly
     # Return log_prob and predict_tag_seq dictionaries for every current tag
-    raise NotImplementedError("TODO: implement stepforward")
+
+    predict_tag_seq = {}
+    log_prob = {}
+    for tag, tag_emit_probs in emit_prob.items():
+        if i > 0:
+            next_trans_prob = {
+                prev_tag: prev_tag_prob + trans_prob[prev_tag][tag]
+                for prev_tag, prev_tag_prob in prev_prob.items()
+            }
+            max_trans_prob = max(next_trans_prob.values())
+            max_trans_tag = max(next_trans_prob, key=next_trans_prob.get)
+        else:
+            max_trans_prob = prev_prob[tag]
+            max_trans_tag = tag
+        obs_likelihood = tag_emit_probs.get(word, tag_emit_probs["UNSEEN"])
+        log_prob[tag] = obs_likelihood + max_trans_prob
+        predict_tag_seq[tag] = prev_predict_tag_seq[max_trans_tag] + [tag]
+
+    return log_prob, predict_tag_seq
 
 
 if __name__ == "__main__":
