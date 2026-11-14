@@ -8,9 +8,11 @@ def baseline(train, test):
     # (III): for each word seen in training, predict its most frequent tag.
     # For words not seen in training, predict the most frequent tag overall.
     words = {}
+    tag_freq = {}
 
     for sentence in train:
         for word, tag in sentence:
+            tag_freq[tag] = tag_freq.get(tag, 0) + 1
             if word not in words:
                 words[word] = {}
             if tag not in words[word]:
@@ -19,12 +21,10 @@ def baseline(train, test):
                 words[word][tag] += 1
 
     max_words = {w: max(t, key=t.get) for w, t in words.items()}
-    freq_words = [max(t.values()) for w, t in words.items()]
-    overall_max = max(freq_words)
-
+    most_freq_tag = max(tag_freq, key=tag_freq.get)
     preds = [
         [
-            (word, max_words[word] if word in max_words else overall_max)
+            (word, (max_words[word] if word in max_words else most_freq_tag))
             for word in sentence
         ]
         for sentence in test

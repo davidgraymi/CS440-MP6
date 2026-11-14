@@ -53,24 +53,27 @@ def resample(particles, weights):
 
 # The PREDICT step of a Bayesian Filter computes the predicted belief after applying the control,
 # except in a particle filter we sample from the transition model p(s' | s, a)
-def act(simulator, control, particles, particle_control_noise=0.1):
+def act(simulator, control, particles, particle_control_noise=0.2):
     # (IV): propagate each particle once with the simulator and return a NumPy array
     # - Use simulator.propagate_config(particle, control, control_noise=particle_control_noise) to propagate each particle
     #   - You should tune the particle_control_noise parameter and set the DEFAULT value above to whatever gives you good performance
     #   - ... which might not be the same as the data-generation noise, i.e., simulator.problem.control_noise
     # - If after propagating a particle through the control it ends up in an invalid state, keep the old particle
-    h_x = [
-        val
-        if (
-            val := simulator.propagate_config(
-                particle, control, control_noise=particle_control_noise
+
+    preds = np.array(
+        [
+            val
+            if (
+                val := simulator.propagate_config(
+                    particle, control, control_noise=particle_control_noise
+                )
             )
-        )
-        is not None
-        else particle
-        for particle in particles
-    ]
-    return particles
+            is not None
+            else particle
+            for particle in particles
+        ]
+    )
+    return preds
 
 
 # we provide a simple function to initialize num_particles uniformly over valid states in the configuration space
